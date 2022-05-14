@@ -1,5 +1,7 @@
 <?php
 require "./db.php";
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     ////////////////////////////////////////////////////////////////////
     //Handle EDIT data DB
@@ -43,9 +45,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo ('add successfull');
         } else  echo ('add fail/ ' . mysqli_error($conn));
     }
-    
-    //close connect db
-    mysqli_close($conn);
+
+    //Handle SEARCH data DB
+    $product = array();
+    if (isset($_POST['key_search']) && $_POST['key_search'] != "" ) {
+        $key_search = $_POST['key_search'];
+        //SQL query for searhdata;
+        $sql_product = "SELECT * FROM product WHERE p_name LIKE '%$key_search%';";
+        $product_oj = mysqli_query($conn, $sql_product);
+        if ($product_oj) {
+            while ($row = mysqli_fetch_array($product_oj)) {
+            $product[] = array(
+                'p_id' => $row['p_id'],
+                'p_name' => $row['p_name'],
+                'p_price' => $row['p_price'],
+                'p_qty' => $row['p_qty']
+            );
+        }
+        echo json_encode($product);
+        } else  echo ('search fail// ' . mysqli_error($conn));
+        
+    }
 }
+//close connect db
+mysqli_close($conn);
 
 ?>

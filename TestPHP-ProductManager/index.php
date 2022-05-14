@@ -50,7 +50,8 @@ require "./lib/db.php";
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Tìm kiếm tên sản phẩm" aria-label="Tìm kiếm" aria-describedby="button-addon2" 
                         id='inputSearchName' name='inputSearchName' value="<?php if(isset($_POST['key_search'])){ echo ($_POST['key_search']); } ?>">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="searchClick()">Tìm kiếm </button>
+                        <button class="btn btn-outline-secondary m-1" type="button" id="button-addon2" onclick="searchClick()">Tìm kiếm </button>
+                        <button class="btn btn-outline-secondary m-1" type="button" id="button-addon2" onclick="showAllProductClick()">Hiển thị tất cả sản phẩm</button>
                     </div>
                 </form>
                 <table class="table border" id='tableData'>
@@ -83,6 +84,9 @@ require "./lib/db.php";
                     }
                     ?>
                     </tbody>
+                    <tbody id='searchResult'>
+
+                    </tbody>
                     <tbody>
                         <tr>
                             <td></td>
@@ -101,6 +105,8 @@ require "./lib/db.php";
     </div>
     <!--  -->
     <!-- FOOTER -->
+    
+
     <div class="container border bg-light">
         <div class="row">
             <div class="col">
@@ -165,7 +171,7 @@ require "./lib/db.php";
     function deleteClick(item){
         let trData = $(item).closest("tr"); 
         let tdDataId = trData.find("td:eq(0)");   //console.log(item.closest("tr").cells[0].firstChild.nodeValue); //cach goi ben JS
-
+        
         // Request Post đến handle.php để xử lý
         $.ajax({
             type: "post",
@@ -180,9 +186,15 @@ require "./lib/db.php";
             }
         });
         // refresh page
-        setTimeout(function () { 
-            $("#tableData").load(window.location.href + " #tableData" );
-        }, 200);
+        if(searchResultStr.length > 0){
+            setTimeout(function () { 
+                $("#searchResult").load(window.location.href + " #searchResult" );
+            }, 200);
+        } else {
+            setTimeout(function () { 
+                $("#tableData").load(window.location.href + " #tableData" );
+            }, 200);
+        }
     }
     /////////////////////////////////////////////////////////////////
     // ON addClick
@@ -216,6 +228,7 @@ require "./lib/db.php";
     }
     /////////////////////////////////////////////////////////////////
     // ON searchClick
+    let searchResultStr = "";
     function searchClick(){
         let inputSearchName = $("#inputSearchName").val();
         
@@ -228,14 +241,31 @@ require "./lib/db.php";
                     key_search: inputSearchName,
                 },
                 success: function (response) {
-                    console.log(response);
+                    for (const iterator of JSON.parse(response)) {
+                        searchResultStr+= `<tr contenteditable="false" onblur="editBlur(this)">
+                                <td scope="row" contenteditable="false">${iterator.p_id}</td>
+                                <td>${iterator.p_name}</td>
+                                <td>${iterator.p_price}</td>
+                                <td>${iterator.p_qty}</td>
+                                <td>
+                                <button type="button" class="btn btn-warning btn-sm" onclick="editClick(this)">SỬA</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteClick(this)">XÓA</button>
+                                </td>
+                              <tr>`
+                    }
+                    $('#searchResult').html(` ${searchResultStr} `);
+                    $('#tbodyData').hide();
+                    $('#searchResult').show();
                 }
-            });
-
-            // refresh page
-            setTimeout(function () { 
-                $("#tableData").load(window.location.href + " #tableData" );
-            }, 111);
+        });
+    }
+    
+    /////////////////////////////////////////////////////////////////
+    // ON click show all SP
+    function showAllProductClick(){
+            $('#searchResult').hide();
+            $('#tbodyData').show();
+        // }
     }
 </script>
 
