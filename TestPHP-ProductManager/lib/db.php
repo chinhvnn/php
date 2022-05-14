@@ -17,12 +17,13 @@ echo "Connected successfully/ ";
 
 //Handle SEARCH data DB
 if (isset($_POST['key_search'])) {
-        $key_search = $_POST['key_search'];
-        //SQL query for searhdata;
-        $sql_product = "SELECT * FROM product WHERE p_name LIKE '%$key_search%';";
-        if (mysqli_query($conn, $sql_product)) {
-          echo ('search successfull//');
-        } else  echo ('search fail// ' . mysqli_error($conn));
+      $key_search = $_POST['key_search'];
+      //SQL query for searhdata;
+      $sql_product = "SELECT * FROM product WHERE p_name LIKE '%$key_search%';";
+      if (mysqli_query($conn, $sql_product)) {
+        echo ('search successfull//');
+      } else  echo ('search fail// ' . mysqli_error($conn));
+      
     } else {
       $sql_product = "SELECT * FROM product";
     }
